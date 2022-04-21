@@ -3,25 +3,25 @@
 
 import * as React from 'react'
 
-const isFunction = value =>
-  value &&
-  (Object.prototype.toString.call(value) === '[object Function]' ||
-    'function' === typeof value ||
-    value instanceof Function)
+const ACTION_TYPES = {
+  INCREMENT: 'INCREMENT',
+}
 
-function StateReducer(currentState, action = {}) {
-  if (isFunction(action)) {
-    return {...currentState, ...action(currentState)}
-  }
+function StateReducer(state, action = {}) {
+  switch (action.type) {
+    case ACTION_TYPES.INCREMENT:
+      return {
+        ...state,
+        count: state.count + action.step,
+      }
 
-  return {
-    ...currentState,
-    ...action,
+    default:
+      throw new Error(`Unsupported action type: ${action.type}`)
   }
 }
 
-function Counter({initialCount = 0, step = 1}) {
-  const [state, setState] = React.useReducer(StateReducer, {
+function Counter({initialCount = 0, step = 3}) {
+  const [state, dispatch] = React.useReducer(StateReducer, {
     count: initialCount,
   })
 
@@ -31,8 +31,7 @@ function Counter({initialCount = 0, step = 1}) {
   // changes to the next two lines of code! Remember:
   // The 1st argument is called "state" - the current value of count
   // The 2nd argument is called "newState" - the value passed to setCount
-  const increment = () =>
-    setState(currentState => ({count: currentState.count + step}))
+  const increment = () => dispatch({type: ACTION_TYPES.INCREMENT, step})
   return <button onClick={increment}>{count}</button>
 }
 
